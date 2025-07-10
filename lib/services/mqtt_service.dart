@@ -15,7 +15,7 @@ class MqttService {
     const broker = 'iot.ceisufro.cl';
     const port = 1883;
     const clientId = 'flutter_app_mqtt';
-    const username = 'AtIcrtoHqlqLPpTQGrQ9'; // <- Reemplaza
+    const username = 'AtIcrtoHqlqLPpTQGrQ9'; // <- Usar access token del dispositivo
 
     _client = MqttServerClient(broker, clientId);
     _client.port = port;

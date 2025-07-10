@@ -8,7 +8,7 @@ class ThingsBoardService {
   static Future<void> enviarComandoAlarma(bool encender) async {
     final url = Uri.parse('$baseUrl/api/v1/$deviceToken/rpc');
     final cuerpo = jsonEncode({
-      "method": "set_state", // <- nombre del método que espera tu dispositivo
+      "method": "set_state",
       "params": encender ? "ON" : "OFF"
     });
 
