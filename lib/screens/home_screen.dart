@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../services/thingsboard_service.dart';
+import '../services/mqtt_service.dart';
+import '../screens/estadisticas_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,26 +12,55 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool alarmaActiva = false;
+  late MqttService mqtt;
 
-  List<String> eventosRecientes = List.generate(
-    5,
-        (index) => "Alarma activada a las 14:27 del 20-05-2025",
-  );
+  List<String> eventosRecientes = [];
 
-  void toggleAlarma(bool value) {
+  @override
+  void initState() {
+    super.initState();
+
+    // Inicia conexión MQTT al cargar la pantalla
+    mqtt = MqttService(onEvento: (mensaje) {
+      setState(() {
+        eventosRecientes.insert(0, mensaje);
+        if (eventosRecientes.length > 10) {
+          eventosRecientes.removeLast();
+        }
+      });
+    });
+
+    mqtt.conectar();
+  }
+
+  @override
+  void dispose() {
+    mqtt.desconectar();
+    super.dispose();
+  }
+
+  void toggleAlarma(bool value) async {
     setState(() {
       alarmaActiva = value;
-      // Aquí puedes llamar a la API de ThingsBoard
     });
+
+    await ThingsBoardService.enviarComandoAlarma(value);
   }
 
   int _selectedIndex = 0;
 
+
   void onNavTapped(int index) {
     setState(() {
       _selectedIndex = index;
-      // Aquí podrías cambiar de vista en el futuro
     });
+
+    if (index == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => const EstadisticasScreen()),
+      );
+    }
   }
 
   @override
@@ -80,7 +111,9 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           const SizedBox(height: 10),
           Expanded(
-            child: ListView.builder(
+            child: eventosRecientes.isEmpty
+                ? const Center(child: Text("No hay eventos aún."))
+                : ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               itemCount: eventosRecientes.length,
               itemBuilder: (context, index) {

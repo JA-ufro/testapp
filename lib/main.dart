@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart'; // 👈 Asegúrate de tener este archivo creado
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'screens/home_screen.dart';
 
-void main() {
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  // Configuración para Android
+  const AndroidInitializationSettings initializationSettingsAndroid =
+  AndroidInitializationSettings('@mipmap/ic_launcher'); // usa el ícono de tu app
+
+  const InitializationSettings initializationSettings =
+  InitializationSettings(android: initializationSettingsAndroid);
+
+  // Inicializa el plugin
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+
   runApp(const MyApp());
 }
 
@@ -17,7 +33,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomeScreen(), // 👈 Tu nueva pantalla principal
+      home: const HomeScreen(),
     );
   }
 }
